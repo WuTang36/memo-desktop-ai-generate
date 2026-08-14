@@ -4,6 +4,19 @@ import userEvent from '@testing-library/user-event'
 import { MemoCard } from '../../src/renderer/components/MemoCard'
 import type { Memo } from '../../src/renderer/types'
 
+// Mock CodeMirror
+vi.mock('@uiw/react-codemirror', () => ({
+  default: ({ value, onChange, onKeyDown, placeholder }: any) => (
+    <textarea
+      data-testid="codemirror"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      onKeyDown={onKeyDown}
+      placeholder={placeholder}
+    />
+  )
+}))
+
 const mockMemo: Memo = {
   id: 'test-123',
   title: '测试标题',
@@ -29,6 +42,7 @@ describe('MemoCard', () => {
   it('应该渲染备忘标题和内容', () => {
     render(<MemoCard memo={mockMemo} onToggleDone={onToggleDone} onDelete={onDelete} onUpdate={onUpdate} />)
     expect(screen.getByText('测试标题')).toBeInTheDocument()
+    // ReactMarkdown 会把纯文本包裹在 <p> 中
     expect(screen.getByText('测试内容')).toBeInTheDocument()
   })
 
@@ -66,9 +80,9 @@ describe('MemoCard', () => {
   it('编辑模式下保存应调用 onUpdate', async () => {
     render(<MemoCard memo={mockMemo} onToggleDone={onToggleDone} onDelete={onDelete} onUpdate={onUpdate} />)
     await userEvent.click(screen.getByText('✎ 编辑'))
-    const contentInput = screen.getByDisplayValue('测试内容')
-    await userEvent.clear(contentInput)
-    await userEvent.type(contentInput, '新内容')
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.clear(editor)
+    await userEvent.type(editor, '新内容')
     await userEvent.click(screen.getByText('保存'))
     expect(onUpdate).toHaveBeenCalledWith('test-123', '测试标题', '新内容')
   })
@@ -95,20 +109,20 @@ describe('MemoCard', () => {
   it('Ctrl+Enter 编辑模式下应保存', async () => {
     render(<MemoCard memo={mockMemo} onToggleDone={onToggleDone} onDelete={onDelete} onUpdate={onUpdate} />)
     await userEvent.click(screen.getByText('✎ 编辑'))
-    const contentInput = screen.getByDisplayValue('测试内容')
-    await userEvent.clear(contentInput)
-    await userEvent.type(contentInput, 'Ctrl+Enter 测试')
-    fireEvent.keyDown(contentInput, { key: 'Enter', ctrlKey: true })
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.clear(editor)
+    await userEvent.type(editor, 'Ctrl+Enter 测试')
+    fireEvent.keyDown(editor, { key: 'Enter', ctrlKey: true })
     expect(onUpdate).toHaveBeenCalledWith('test-123', '测试标题', 'Ctrl+Enter 测试')
   })
 
   it('Esc 编辑模式下应取消', async () => {
     render(<MemoCard memo={mockMemo} onToggleDone={onToggleDone} onDelete={onDelete} onUpdate={onUpdate} />)
     await userEvent.click(screen.getByText('✎ 编辑'))
-    const contentInput = screen.getByDisplayValue('测试内容')
-    await userEvent.clear(contentInput)
-    await userEvent.type(contentInput, '修改但取消')
-    fireEvent.keyDown(contentInput, { key: 'Escape' })
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.clear(editor)
+    await userEvent.type(editor, '修改但取消')
+    fireEvent.keyDown(editor, { key: 'Escape' })
     expect(screen.queryByText('保存')).not.toBeInTheDocument()
     expect(screen.getByText('测试内容')).toBeInTheDocument()
   })

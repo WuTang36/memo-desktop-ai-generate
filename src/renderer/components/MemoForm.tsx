@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { ColorPalette } from './ColorPalette'
+import { MarkdownEditor } from './MarkdownEditor'
 
 interface MemoFormProps {
   onAdd: (title: string, content: string, color: string) => void
@@ -9,32 +10,29 @@ export function MemoForm({ onAdd }: MemoFormProps): JSX.Element {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [color, setColor] = useState('')
-  const contentRef = useRef<HTMLTextAreaElement>(null)
 
-  const charCount = content.length
-  const isOverLimit = charCount > 500
-
-  const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault()
-    const trimmed = content.trim()
-    if (!trimmed || isOverLimit) return
-    onAdd(title, trimmed, color)
-    setTitle('')
-    setContent('')
-    setColor('')
-    contentRef.current?.focus()
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handleSubmit = useCallback(
+    (e: React.FormEvent): void => {
       e.preventDefault()
-      handleSubmit(e)
-    }
-  }
+      const trimmed = content.trim()
+      if (!trimmed) return
+      onAdd(title, trimmed, color)
+      setTitle('')
+      setContent('')
+      setColor('')
+    },
+    [title, content, color, onAdd]
+  )
 
-  useEffect(() => {
-    contentRef.current?.focus()
-  }, [])
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent): void => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        handleSubmit(e as unknown as React.FormEvent)
+      }
+    },
+    [handleSubmit]
+  )
 
   return (
     <form className="memo-form" onSubmit={handleSubmit}>
@@ -46,22 +44,16 @@ export function MemoForm({ onAdd }: MemoFormProps): JSX.Element {
         onChange={e => setTitle(e.target.value)}
         maxLength={100}
       />
-      <textarea
-        ref={contentRef}
-        className="input-content"
-        placeholder="写点什么..."
+      <MarkdownEditor
         value={content}
-        onChange={e => setContent(e.target.value)}
+        onChange={setContent}
         onKeyDown={handleKeyDown}
-        rows={3}
+        placeholder="写点什么...（支持 Markdown）"
         maxLength={500}
-        required
+        autoFocus
       />
       <div className="form-footer">
-        <span className={`char-count${charCount > 450 ? ' warn' : ''}`}>
-          {charCount}/500
-        </span>
-        <button type="submit" className="btn btn-primary" disabled={isOverLimit}>
+        <button type="submit" className="btn btn-primary">
           添加
         </button>
       </div>

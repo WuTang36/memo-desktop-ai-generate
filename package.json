@@ -14,7 +14,10 @@
   },
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.0",
+    "@uiw/react-codemirror": "^4.23.0",
+    "@codemirror/lang-markdown": "^6.3.0"
   },
   "devDependencies": {
     "@electron-toolkit/utils": "^3.0.0",

@@ -9,10 +9,11 @@ export function Header({ stats }: HeaderProps): JSX.Element {
     <header className="header">
       <div className="logo">
         <svg className="logo-icon" viewBox="0 0 40 40" width="32" height="32">
-          <rect x="6" y="4" width="28" height="32" rx="3" fill="none" stroke="currentColor" strokeWidth="2.5" />
-          <line x1="12" y1="12" x2="28" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <line x1="12" y1="18" x2="24" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <line x1="12" y1="24" x2="20" y2="24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <rect x="4" y="3" width="32" height="34" rx="4" fill="none" stroke="currentColor" strokeWidth="2.2" />
+          <rect x="4" y="3" width="32" height="8" rx="4" fill="currentColor" opacity="0.15" />
+          <line x1="11" y1="16" x2="29" y2="16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="11" y1="21" x2="27" y2="21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <line x1="11" y1="26" x2="23" y2="26" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
         <span className="logo-text">备忘录</span>
       </div>

@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import ReactMarkdown from 'react-markdown'
+import { MarkdownEditor } from './MarkdownEditor'
 import type { Memo } from '../types'
 
 interface MemoCardProps {
@@ -20,28 +22,31 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
     }
   }, [editing])
 
-  const handleSave = (): void => {
+  const handleSave = useCallback((): void => {
     const trimmed = editContent.trim()
     if (!trimmed) return
     setEditing(false)
     onUpdate(memo.id, editTitle.trim(), trimmed)
-  }
+  }, [editContent, editTitle, memo.id, onUpdate])
 
-  const handleCancel = (): void => {
+  const handleCancel = useCallback((): void => {
     setEditTitle(memo.title)
     setEditContent(memo.content)
     setEditing(false)
-  }
+  }, [memo.title, memo.content])
 
-  const handleKeyDown = (e: React.KeyboardEvent): void => {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault()
-      handleSave()
-    }
-    if (e.key === 'Escape') {
-      handleCancel()
-    }
-  }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent): void => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+        handleSave()
+      }
+      if (e.key === 'Escape') {
+        handleCancel()
+      }
+    },
+    [handleSave, handleCancel]
+  )
 
   const formatTime = (iso: string): string => {
     const d = new Date(iso)
@@ -50,9 +55,12 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
   }
 
   const buildHistoryTitle = (history: Memo['history']): string => {
-    return history.map((h, i) =>
-      `第${i + 1}次: ${formatTime(h.time)}\n${h.title ? h.title + ': ' : ''}${h.content.substring(0, 40)}${h.content.length > 40 ? '...' : ''}`
-    ).join('\n')
+    return history
+      .map(
+        (h, i) =>
+          `第${i + 1}次: ${formatTime(h.time)}\n${h.title ? h.title + ': ' : ''}${h.content.substring(0, 40)}${h.content.length > 40 ? '...' : ''}`
+      )
+      .join('\n')
   }
 
   const hasHistory = memo.history && memo.history.length > 0
@@ -68,18 +76,20 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
           maxLength={100}
           placeholder="标题（可选）"
         />
-        <textarea
-          ref={contentInputRef}
-          className="edit-content-input"
+        <MarkdownEditor
           value={editContent}
-          onChange={e => setEditContent(e.target.value)}
+          onChange={setEditContent}
           onKeyDown={handleKeyDown}
-          rows={2}
+          placeholder="写点什么...（支持 Markdown）"
           maxLength={500}
         />
         <div className="edit-actions">
-          <button className="btn btn-sm btn-success" onClick={handleSave}>保存</button>
-          <button className="btn btn-sm btn-warning" onClick={handleCancel}>取消</button>
+          <button className="btn btn-sm btn-success" onClick={handleSave}>
+            保存
+          </button>
+          <button className="btn btn-sm btn-warning" onClick={handleCancel}>
+            取消
+          </button>
         </div>
       </div>
     )
@@ -93,8 +103,10 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
       style={memo.color ? { background: memo.color } : undefined}
       data-id={memo.id}
     >
-      <div className="memo-title memo-title-display">{displayTitle}</div>
-      <div className="memo-body">{memo.content}</div>
+      <div className="memo-title">{displayTitle}</div>
+      <div className="memo-body">
+        <ReactMarkdown>{memo.content}</ReactMarkdown>
+      </div>
       <div className="memo-meta">
         <span className="memo-time">创建于 {formatTime(memo.createdAt)}</span>
         {hasHistory && (

@@ -1,7 +1,21 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App } from '../../src/renderer/App'
+
+// Mock CodeMirror
+vi.mock('@uiw/react-codemirror', () => ({
+  default: ({ value, onChange, onKeyDown, placeholder, autoFocus }: any) => (
+    <textarea
+      data-testid="codemirror"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      onKeyDown={onKeyDown}
+      placeholder={placeholder}
+      autoFocus={autoFocus}
+    />
+  )
+}))
 
 describe('App 集成测试', () => {
   beforeEach(() => {
@@ -11,7 +25,7 @@ describe('App 集成测试', () => {
   it('应该渲染完整应用', () => {
     render(<App />)
     expect(screen.getByText('备忘录')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('写点什么...')).toBeInTheDocument()
+    expect(screen.getByTestId('codemirror')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('搜索备忘录...')).toBeInTheDocument()
   })
 
@@ -22,8 +36,8 @@ describe('App 集成测试', () => {
 
   it('添加备忘后应显示在列表中', async () => {
     render(<App />)
-    const contentInput = screen.getByPlaceholderText('写点什么...')
-    await userEvent.type(contentInput, '新备忘内容')
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.type(editor, '新备忘内容')
     fireEvent.submit(screen.getByRole('button', { name: '添加' }).closest('form')!)
 
     expect(await screen.findByText('新备忘内容')).toBeInTheDocument()
@@ -31,19 +45,18 @@ describe('App 集成测试', () => {
 
   it('添加备忘后统计应更新', async () => {
     render(<App />)
-    const contentInput = screen.getByPlaceholderText('写点什么...')
-    await userEvent.type(contentInput, '统计测试')
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.type(editor, '统计测试')
     fireEvent.submit(screen.getByRole('button', { name: '添加' }).closest('form')!)
 
-    // 统计区域应显示 1 条
     const statsEl = screen.getByText(/条备忘/)
     expect(statsEl.textContent).toContain('1')
   })
 
   it('可以删除备忘', async () => {
     render(<App />)
-    const contentInput = screen.getByPlaceholderText('写点什么...')
-    await userEvent.type(contentInput, '要删除的内容')
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.type(editor, '要删除的内容')
     fireEvent.submit(screen.getByRole('button', { name: '添加' }).closest('form')!)
 
     const deleteBtn = await screen.findByText('✕ 删除')
@@ -54,8 +67,8 @@ describe('App 集成测试', () => {
 
   it('可以标记完备忘', async () => {
     render(<App />)
-    const contentInput = screen.getByPlaceholderText('写点什么...')
-    await userEvent.type(contentInput, '完成测试')
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.type(editor, '完成测试')
     fireEvent.submit(screen.getByRole('button', { name: '添加' }).closest('form')!)
 
     const doneBtn = await screen.findByText('✓ 完成')
@@ -66,14 +79,13 @@ describe('App 集成测试', () => {
 
   it('搜索功能应过滤备忘', async () => {
     render(<App />)
-    // 添加两条备忘
-    const contentInput = screen.getByPlaceholderText('写点什么...')
-    await userEvent.type(contentInput, '苹果')
+    const editor = screen.getByTestId('codemirror')
+    await userEvent.type(editor, '苹果')
     fireEvent.submit(screen.getByRole('button', { name: '添加' }).closest('form')!)
-    await userEvent.type(contentInput, '香蕉')
+    await userEvent.clear(editor)
+    await userEvent.type(editor, '香蕉')
     fireEvent.submit(screen.getByRole('button', { name: '添加' }).closest('form')!)
 
-    // 搜索
     const searchInput = screen.getByPlaceholderText('搜索备忘录...')
     await userEvent.type(searchInput, '苹果')
 

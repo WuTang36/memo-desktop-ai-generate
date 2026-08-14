@@ -3,6 +3,19 @@ import { render, screen } from '@testing-library/react'
 import { MemoList } from '../../src/renderer/components/MemoList'
 import type { Memo } from '../../src/renderer/types'
 
+// Mock CodeMirror
+vi.mock('@uiw/react-codemirror', () => ({
+  default: ({ value, onChange, onKeyDown, placeholder }: any) => (
+    <textarea
+      data-testid="codemirror"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      onKeyDown={onKeyDown}
+      placeholder={placeholder}
+    />
+  )
+}))
+
 const mockMemos: Memo[] = [
   {
     id: '1', title: '备忘一', content: '内容一', done: false,
