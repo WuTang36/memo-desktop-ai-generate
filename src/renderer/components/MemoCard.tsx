@@ -56,7 +56,6 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
   }
 
   const hasHistory = memo.history && memo.history.length > 0
-  const title = memo.title || '（无标题）'
 
   if (editing) {
     return (
@@ -86,14 +85,16 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
     )
   }
 
+  const displayTitle = memo.title || '（无标题）'
+
   return (
     <div
       className={`memo-card${memo.done ? ' done' : ''}`}
       style={memo.color ? { background: memo.color } : undefined}
       data-id={memo.id}
     >
-      <div className="memo-title memo-title-display">{escapeHtml(title)}</div>
-      <div className="memo-body">{escapeHtml(memo.content)}</div>
+      <div className="memo-title memo-title-display">{displayTitle}</div>
+      <div className="memo-body">{memo.content}</div>
       <div className="memo-meta">
         <span className="memo-time">创建于 {formatTime(memo.createdAt)}</span>
         {hasHistory && (
@@ -122,10 +123,4 @@ export function MemoCard({ memo, onToggleDone, onDelete, onUpdate }: MemoCardPro
       </div>
     </div>
   )
-}
-
-function escapeHtml(str: string): string {
-  const div = document.createElement('div')
-  div.textContent = str
-  return div.innerHTML
 }

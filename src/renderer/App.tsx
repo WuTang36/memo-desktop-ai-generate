@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { MemoStore } from './store/MemoStore'
 import { StoreProvider } from './hooks/useMemoStore'
 import { Header } from './components/Header'
@@ -31,9 +31,21 @@ function AppInner({ store }: AppInnerProps): JSX.Element {
   const filteredMemos = useMemo(() => store.search(searchQuery), [searchQuery, tick])
   const stats = useMemo(() => store.getStats(), [tick])
 
-  const handleAdd = (title: string, content: string, color: string): void => {
+  const handleAdd = useCallback((title: string, content: string, color: string): void => {
     store.add(title, content, color)
-  }
+  }, [store])
+
+  const handleToggleDone = useCallback((id: string): void => {
+    store.toggleDone(id)
+  }, [store])
+
+  const handleDelete = useCallback((id: string): void => {
+    store.remove(id)
+  }, [store])
+
+  const handleUpdate = useCallback((id: string, title: string, content: string): void => {
+    store.update(id, { title, content })
+  }, [store])
 
   return (
     <div className="container">
@@ -43,9 +55,9 @@ function AppInner({ store }: AppInnerProps): JSX.Element {
       <MemoForm onAdd={handleAdd} />
       <MemoList
         memos={filteredMemos}
-        onToggleDone={(id) => store.toggleDone(id)}
-        onDelete={(id) => store.remove(id)}
-        onUpdate={(id, title, content) => store.update(id, { title, content })}
+        onToggleDone={handleToggleDone}
+        onDelete={handleDelete}
+        onUpdate={handleUpdate}
       />
     </div>
   )
