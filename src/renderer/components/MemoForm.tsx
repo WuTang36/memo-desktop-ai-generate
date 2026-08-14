@@ -24,16 +24,6 @@ export function MemoForm({ onAdd }: MemoFormProps): JSX.Element {
     [title, content, color, onAdd]
   )
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent): void => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        handleSubmit(e as unknown as React.FormEvent)
-      }
-    },
-    [handleSubmit]
-  )
-
   return (
     <form className="memo-form" onSubmit={handleSubmit}>
       <input
@@ -47,7 +37,6 @@ export function MemoForm({ onAdd }: MemoFormProps): JSX.Element {
       <MarkdownEditor
         value={content}
         onChange={setContent}
-        onKeyDown={handleKeyDown}
         placeholder="写点什么...（支持 Markdown）"
         maxLength={500}
         autoFocus

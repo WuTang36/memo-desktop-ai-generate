@@ -709,3 +709,8 @@ body {
 .memo-card.done .memo-body {
   opacity: 0.6;
 }
+
+.md-preview-empty {
+  color: #bbb;
+  font-style: italic;
+}

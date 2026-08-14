@@ -82,7 +82,7 @@ export function MarkdownEditor({
           {value.trim() ? (
             <ReactMarkdown>{value}</ReactMarkdown>
           ) : (
-            <span className="md-preview-placeholder">{placeholder}</span>
+            <span className="md-preview-empty">暂无内容</span>
           )}
         </div>
       )}

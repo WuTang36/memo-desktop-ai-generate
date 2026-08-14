@@ -5,12 +5,11 @@ import { MemoForm } from '../../src/renderer/components/MemoForm'
 
 // CodeMirror 在 jsdom 中需要特殊处理，mock 掉
 vi.mock('@uiw/react-codemirror', () => ({
-  default: ({ value, onChange, onKeyDown, placeholder, autoFocus }: any) => (
+  default: ({ value, onChange, placeholder, autoFocus }: any) => (
     <textarea
       data-testid="codemirror"
       value={value}
       onChange={e => onChange(e.target.value)}
-      onKeyDown={onKeyDown}
       placeholder={placeholder}
       autoFocus={autoFocus}
     />
@@ -59,14 +58,6 @@ describe('MemoForm', () => {
     await userEvent.type(editor, longText)
     const charCount = screen.getByText('455/500')
     expect(charCount.className).toContain('warn')
-  })
-
-  it('Enter 键应提交表单', async () => {
-    render(<MemoForm onAdd={onAdd} />)
-    const editor = screen.getByTestId('codemirror')
-    await userEvent.type(editor, '测试内容')
-    fireEvent.keyDown(editor, { key: 'Enter', shiftKey: false })
-    expect(onAdd).toHaveBeenCalledWith('', '测试内容', '')
   })
 
   it('提交后应该清空表单', async () => {
