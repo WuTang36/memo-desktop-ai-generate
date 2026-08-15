@@ -3,9 +3,15 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoForm } from '../../src/renderer/components/MemoForm'
 
-// CodeMirror 在 jsdom 中需要特殊处理，mock 掉
+interface MockCodeMirrorProps {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  autoFocus?: boolean
+}
+
 vi.mock('@uiw/react-codemirror', () => ({
-  default: ({ value, onChange, placeholder, autoFocus }: any) => (
+  default: ({ value, onChange, placeholder, autoFocus }: MockCodeMirrorProps) => (
     <textarea
       data-testid="codemirror"
       value={value}

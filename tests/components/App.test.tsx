@@ -3,9 +3,16 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App } from '../../src/renderer/App'
 
-// Mock CodeMirror
+interface MockCodeMirrorProps {
+  value: string
+  onChange: (value: string) => void
+  onKeyDown?: (e: React.KeyboardEvent) => void
+  placeholder?: string
+  autoFocus?: boolean
+}
+
 vi.mock('@uiw/react-codemirror', () => ({
-  default: ({ value, onChange, onKeyDown, placeholder, autoFocus }: any) => (
+  default: ({ value, onChange, onKeyDown, placeholder, autoFocus }: MockCodeMirrorProps) => (
     <textarea
       data-testid="codemirror"
       value={value}

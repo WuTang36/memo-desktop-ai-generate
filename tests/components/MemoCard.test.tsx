@@ -4,9 +4,15 @@ import userEvent from '@testing-library/user-event'
 import { MemoCard } from '../../src/renderer/components/MemoCard'
 import type { Memo } from '../../src/renderer/types'
 
-// Mock CodeMirror
+interface MockCodeMirrorProps {
+  value: string
+  onChange: (value: string) => void
+  onKeyDown?: (e: React.KeyboardEvent) => void
+  placeholder?: string
+}
+
 vi.mock('@uiw/react-codemirror', () => ({
-  default: ({ value, onChange, onKeyDown, placeholder }: any) => (
+  default: ({ value, onChange, onKeyDown, placeholder }: MockCodeMirrorProps) => (
     <textarea
       data-testid="codemirror"
       value={value}
@@ -42,7 +48,6 @@ describe('MemoCard', () => {
   it('应该渲染备忘标题和内容', () => {
     render(<MemoCard memo={mockMemo} onToggleDone={onToggleDone} onDelete={onDelete} onUpdate={onUpdate} />)
     expect(screen.getByText('测试标题')).toBeInTheDocument()
-    // ReactMarkdown 会把纯文本包裹在 <p> 中
     expect(screen.getByText('测试内容')).toBeInTheDocument()
   })
 

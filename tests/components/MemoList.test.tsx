@@ -3,9 +3,15 @@ import { render, screen } from '@testing-library/react'
 import { MemoList } from '../../src/renderer/components/MemoList'
 import type { Memo } from '../../src/renderer/types'
 
-// Mock CodeMirror
+interface MockCodeMirrorProps {
+  value: string
+  onChange: (value: string) => void
+  onKeyDown?: (e: React.KeyboardEvent) => void
+  placeholder?: string
+}
+
 vi.mock('@uiw/react-codemirror', () => ({
-  default: ({ value, onChange, onKeyDown, placeholder }: any) => (
+  default: ({ value, onChange, onKeyDown, placeholder }: MockCodeMirrorProps) => (
     <textarea
       data-testid="codemirror"
       value={value}
