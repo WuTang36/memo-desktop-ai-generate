@@ -3,3 +3,6 @@ out/
 dist/
 .DS_Store
 *.log
+*.inspect.ndjson
+tmp_ppt/renders/
+tmp_ppt/node_modules/
